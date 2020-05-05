@@ -1,0 +1,43 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "identity": {
+           "type": "securestring"
+        },
+        "sqlServer": {
+           "type": "string"
+        },
+        "sqlAdmin": {
+            "type": "string"
+        },
+        "sqlPassword": {
+            "type": "securestring"
+        }
+    },
+    "variables": {
+        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/d5e1e2ae80bee0acc1dcb080f62a792709dbcc4a/gistfile1.ps1"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deploymentScripts",
+            "apiVersion": "2019-10-01-preview",
+            "name": "runPowerShellInline",
+            "location": "[resourceGroup().location]",
+            "kind": "AzurePowerShell",
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {"[parameters('identity')]": {}}
+            },
+            "properties": {
+                "forceUpdateTag": "1",
+                "azPowerShellVersion": "3.0",
+                "arguments": "[concat('-sqlServer', parameters('sqlServer'), ' -sqlAdmin', parameters('sqlAdmin'), ' -sqlPassword', parameters('sqlPassword'))]",
+                "primaryScriptUri": "[variables('script')]",
+                "timeout": "PT30M",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
+            }
+        }
+    ]
+}

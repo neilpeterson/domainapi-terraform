@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: domainapi
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: domainapi
+  template:
+    metadata:
+      labels:
+        app: domainapi
+    spec:
+      containers:
+      - name: domainapi
+        image: {{ .Values.Image }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        env:
+        - name: SERVER_NAME
+          value: {{ .Values.SqlServer }},1433
+        - name: USER_NAME
+          value: {{ .Values.SqlUser }}
+        - name: PASSWORD
+          value: {{ .Values.SqlPassword }}
+        - name: DATABASE
+          value: {{ .Values.SqlDatabase }}
+        - name: ASPNETCORE_URLS
+          value: "http://+:80"
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Development"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: domainapi
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: domainapi
