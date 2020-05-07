@@ -22,6 +22,9 @@ resource "azurerm_sql_firewall_rule" "azure" {
   end_ip_address      = "0.0.0.0"
 }
 
+# The Terraform provider does not yet support the deployment script resource type.
+# Here I am embedding an ARM Template
+# Deployment script is used to create the domaindata table in the Azure SQL DB
 resource "azurerm_template_deployment" "domaindata" {
   name                = "domaindata"
   resource_group_name = azurerm_resource_group.resourceGroup.name

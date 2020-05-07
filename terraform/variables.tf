@@ -1,5 +1,5 @@
 variable "identifier" {
-  default = "fullnep08"
+  default = "fullnep09"
 }
 
 variable "resourceGroupName" {

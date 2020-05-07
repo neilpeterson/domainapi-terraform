@@ -1,3 +1,5 @@
+# TODO - I am having issue pulling images from ACR when using the system assigned identity.
+
 resource "azurerm_container_registry" "acr" {
   name                     = "${var.continerRegistryName}${var.identifier}"
   resource_group_name      = azurerm_resource_group.resourceGroup.name
