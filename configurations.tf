@@ -1,25 +1,19 @@
-resource "azurerm_sql_server" "sql" {
-  name                         = "${var.sqlServerName}${var.identifier}"
-  resource_group_name          = azurerm_resource_group.resourceGroup.name
-  location                     = azurerm_resource_group.resourceGroup.location
-  version                      = "12.0"
-  administrator_login          = var.sqlServerAdminName
-  administrator_login_password = var.sqlServerAdminPassword
+resource "azurerm_key_vault_secret" "sqlServerEndpoint" {
+  name         = "sqlServerEndpoint"
+  value        = azurerm_sql_server.sql.fully_qualified_domain_name
+  key_vault_id = azurerm_key_vault.keyvault.id
 }
 
-resource "azurerm_sql_database" "database" {
-  name                = "domaindb"
-  resource_group_name = azurerm_resource_group.resourceGroup.name
-  location            = azurerm_resource_group.resourceGroup.location
-  server_name         = azurerm_sql_server.sql.name
+resource "azurerm_key_vault_secret" "sqlServerAdminName" {
+  name         = "sqlServerAdminName"
+  value        = var.sqlServerAdminName
+  key_vault_id = azurerm_key_vault.keyvault.id
 }
 
-resource "azurerm_sql_firewall_rule" "azure" {
-  name                = "azure"
-  resource_group_name = azurerm_resource_group.resourceGroup.name
-  server_name         = azurerm_sql_server.sql.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
+resource "azurerm_key_vault_secret" "sqlServerAdminPassword" {
+  name         = "sqlServerAdminPassword"
+  value        = var.sqlServerAdminPassword
+  key_vault_id = azurerm_key_vault.keyvault.id
 }
 
 # The Terraform provider does not yet support the deployment script resource type.

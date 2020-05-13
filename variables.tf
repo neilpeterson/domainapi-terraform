@@ -1,13 +1,17 @@
 variable "identifier" {
-  default = "fullnep09"
+  default = "nepeters011"
 }
 
 variable "resourceGroupName" {
-  default     = "hello-world"
+  default = "rg"
 }
 
 variable "location" {
-  default     = "eastus"
+  default = "eastus"
+}
+
+variable "aksName" {
+  default = "aks"
 }
 
 variable "continerRegistryName" {
@@ -15,7 +19,7 @@ variable "continerRegistryName" {
 }
 
 variable "keyvaultName" {
-  default     = "keyvault"
+  default     = "protemp-kv001"
 }
 
 variable "sqlServerName" {
@@ -29,10 +33,3 @@ variable "sqlServerAdminName" {
 variable "sqlServerAdminPassword" {
   default     = "Password2020!"
 }
-
-variable "aksName" {
-  default     = "aks"
-}
-variable "aksClisntId" {}
-
-variable "aksClientSecret" {}
