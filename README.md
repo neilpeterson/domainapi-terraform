@@ -1,11 +1,6 @@
 # Domain Data API
 
-An Azure Service Principle is needed for creating the AKS cluster. In this example, `TF_VAR` variables are populated with the client id and secret from an Azure Keyvault.
-
 ```
-export TF_VAR_aksClisntId=$(az keyvault secret show --name aksClisntId --vault-name nepeters-keyvault --query value -o tsv)
-export TF_VAR_aksClientSecret=$(az keyvault secret show --name aksClientSecret --vault-name nepeters-keyvault --query value -o tsv)
-
 # Run from the terraform directory
 
 terraform init
