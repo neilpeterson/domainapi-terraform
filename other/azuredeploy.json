@@ -13,10 +13,16 @@
         },
         "sqlPassword": {
             "type": "securestring"
+        },
+        "aksCluster": {
+            "type": "string"
+        },
+        "aksResourceGroup": {
+            "type": "string"
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/d5e1e2ae80bee0acc1dcb080f62a792709dbcc4a/gistfile1.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/908ea38ac54128dbe404d44b0a14e4362ed187ec/gistfile1.ps1"
     },
     "resources": [
         {
@@ -32,7 +38,7 @@
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-sqlServer', parameters('sqlServer'), ' -sqlAdmin', parameters('sqlAdmin'), ' -sqlPassword', parameters('sqlPassword'))]",
+                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'))]",
                 "primaryScriptUri": "[variables('script')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",

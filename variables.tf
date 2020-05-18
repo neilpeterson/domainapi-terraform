@@ -1,5 +1,5 @@
 variable "identifier" {
-  default = "nepeters011"
+  default = "nepter0005"
 }
 
 variable "resourceGroupName" {

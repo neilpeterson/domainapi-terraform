@@ -1,24 +1,23 @@
 resource "azurerm_key_vault_secret" "sqlServerEndpoint" {
-  name         = "sqlServerEndpoint"
+  name         = "SERVERNAME"
   value        = azurerm_sql_server.sql.fully_qualified_domain_name
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
 resource "azurerm_key_vault_secret" "sqlServerAdminName" {
-  name         = "sqlServerAdminName"
+  name         = "USERNAME"
   value        = var.sqlServerAdminName
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
 resource "azurerm_key_vault_secret" "sqlServerAdminPassword" {
-  name         = "sqlServerAdminPassword"
+  name         = "PASSWORD"
   value        = var.sqlServerAdminPassword
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
-# The Terraform provider does not yet support the deployment script resource type.
-# Here I am embedding an ARM Template
-# Deployment script is used to create the domaindata table in the Azure SQL DB
+# No Terraform support for deploymnet script, using ARM template
+# Deployment script is used to create the domaindata table in the Azure SQL DB and boot strap AKS pod identity
 resource "azurerm_template_deployment" "domaindata" {
   name                = "domaindata"
   resource_group_name = azurerm_resource_group.resourceGroup.name
@@ -39,10 +38,16 @@ resource "azurerm_template_deployment" "domaindata" {
         },
         "sqlPassword": {
             "type": "securestring"
+        },
+        "aksCluster": {
+            "type": "string"
+        },
+        "aksResourceGroup": {
+            "type": "string"
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/ca8c010ee0c28a2fa7c9d4f27cf5a5fb4992bb5c/gistfile1.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/1e8ca5e5c652f14ad63e3e2001cef33be60b24dd/gistfile1.ps1"
     },
     "resources": [
         {
@@ -58,7 +63,7 @@ resource "azurerm_template_deployment" "domaindata" {
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'))]",
+                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'))]",
                 "primaryScriptUri": "[variables('script')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
@@ -69,12 +74,14 @@ resource "azurerm_template_deployment" "domaindata" {
 }
 DEPLOY
 
-parameters = {
-  "identity" = azurerm_user_assigned_identity.identity.id,
-  "sqlServer" = azurerm_sql_server.sql.fully_qualified_domain_name,
-  "sqlAdmin" = var.sqlServerAdminName,
-  "sqlPassword" = var.sqlServerAdminPassword
-}
+  parameters = {
+    "identity"         = azurerm_user_assigned_identity.script-identity.id,
+    "sqlServer"        = azurerm_sql_server.sql.fully_qualified_domain_name,
+    "sqlAdmin"         = var.sqlServerAdminName,
+    "sqlPassword"      = var.sqlServerAdminPassword,
+    "aksResourceGroup" = azurerm_resource_group.resourceGroup.name,
+    "aksCluster"       = azurerm_kubernetes_cluster.aks.name
+  }
 
   deployment_mode = "Incremental"
 }

@@ -11,10 +11,13 @@ spec:
     metadata:
       labels:
         app: domainapi
+        aadpodidbinding: keyvault
     spec:
       containers:
       - name: domainapi
         image: {{ .Values.Image }}
+        env:
+        - name: 
         resources:
           requests:
             cpu: 100m
@@ -26,18 +29,12 @@ spec:
         - containerPort: 80
         - containerPort: 443
         env:
-        - name: SERVER_NAME
-          value: {{ .Values.SqlServer }},1433
-        - name: USER_NAME
-          value: {{ .Values.SqlUser }}
-        - name: PASSWORD
-          value: {{ .Values.SqlPassword }}
         - name: DATABASE
           value: {{ .Values.SqlDatabase }}
         - name: ASPNETCORE_URLS
           value: "http://+:80"
-        - name: ASPNETCORE_ENVIRONMENT
-          value: "Development"
+        - name: KeyVaultName
+          value:  {{ .Values.KeyVaultName }}
 ---
 apiVersion: v1
 kind: Service
@@ -49,3 +46,20 @@ spec:
   - port: 80
   selector:
     app: domainapi
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: aks-pod-identity
+spec:
+  type: 0
+  resourceID: /subscriptions/{{ .Values.SubscriptionId }}/resourcegroups/{{ .Values.ResourceGroupName }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{ .Values.IdentityName }}
+  clientID: {{ .Values.IdentityClientId }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: aks-pod-identity-binding
+spec:
+  azureIdentity: aks-pod-identity
+  selector: {{ .Values.IdentitySelector }}
