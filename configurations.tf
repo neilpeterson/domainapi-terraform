@@ -1,17 +1,17 @@
 resource "azurerm_key_vault_secret" "sqlServerEndpoint" {
-  name         = "SERVERNAME"
+  name         = "SQL-SERVER-NAME"
   value        = azurerm_sql_server.sql.fully_qualified_domain_name
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
 resource "azurerm_key_vault_secret" "sqlServerAdminName" {
-  name         = "USERNAME"
+  name         = "SQL-USER-NAME"
   value        = var.sqlServerAdminName
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
 resource "azurerm_key_vault_secret" "sqlServerAdminPassword" {
-  name         = "PASSWORD"
+  name         = "SQL-PASSWORD"
   value        = var.sqlServerAdminPassword
   key_vault_id = azurerm_key_vault.keyvault.id
 }
