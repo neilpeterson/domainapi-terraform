@@ -21,3 +21,7 @@ _2_Run_this_command_to_login_connect_with_kubernetes_cluster = az aks get-creden
 _3_Run_this_command_to_build_and_stage_container_image = az acr build --registry acrnepeters011 -f src/Services/DomainAPI/Dockerfile --image domainapi:v1 .
 _4_Run_this_command_to_run_helm_chart = helm install ./domain-api --set SqlServer=sqlnepeters011.database.windows.net --set SqlUser=twtadmin --set SqlPassword=Password2020! --set Image=acrnepeters011.azurecr.io/domainapi:v1 --generate-name
 ```
+
+## Code of Conduct
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
