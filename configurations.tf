@@ -44,10 +44,19 @@ resource "azurerm_template_deployment" "domaindata" {
         },
         "aksResourceGroup": {
             "type": "string"
+        },
+        "agwName": {
+            "type": "string"
+        },
+        "identityResourceID": {
+            "type": "string"
+        },
+        "identityClientID": {
+            "type": "string"
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/1e8ca5e5c652f14ad63e3e2001cef33be60b24dd/gistfile1.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/7191c9c53986abd09f4bca58863f39d9/raw/c71e5d39bd835bddf4404097e2e090c707f42cf7/pro-template-app-gateway.ps1"
     },
     "resources": [
         {
@@ -63,7 +72,7 @@ resource "azurerm_template_deployment" "domaindata" {
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'))]",
+                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'), ' -subscriptionId ', subscription().subscriptionId, ' -agwName ', parameters('agwName'), ' -identityResourceID ', parameters('identityResourceID'), ' -identityClientID ', parameters('identityClientID'))]",
                 "primaryScriptUri": "[variables('script')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
@@ -80,7 +89,10 @@ DEPLOY
     "sqlAdmin"         = var.sqlServerAdminName,
     "sqlPassword"      = var.sqlServerAdminPassword,
     "aksResourceGroup" = azurerm_resource_group.resourceGroup.name,
-    "aksCluster"       = azurerm_kubernetes_cluster.aks.name
+    "aksCluster"       = azurerm_kubernetes_cluster.aks.name,
+    "agwName"          = azurerm_application_gateway.agw.name,
+    "identityResourceID" = azurerm_user_assigned_identity.pod-identity.id,
+    "identityClientID" = azurerm_user_assigned_identity.pod-identity.client_id
   }
 
   deployment_mode = "Incremental"

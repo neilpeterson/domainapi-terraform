@@ -3,6 +3,6 @@ SqlDatabase: domaindb
 SubscriptionId: 
 ResourceGroupName: 
 IdentityName:
-IdentitySelector: keyvault
+IdentitySelector: ingress-azure
 IdentityClientId:
 KeyVaultName:

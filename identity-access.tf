@@ -16,14 +16,17 @@ resource "azurerm_user_assigned_identity" "pod-identity" {
 resource "azurerm_key_vault_access_policy" "aks_pod_identity" {
   key_vault_id = azurerm_key_vault.keyvault.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id = azurerm_user_assigned_identity.pod-identity.principal_id
+  object_id    = azurerm_user_assigned_identity.pod-identity.principal_id
 
   secret_permissions = [
     "get", "list"
   ]
+  
 }
 
 # Pod Identity reader access to the resource group
+# NEW NOTE - THIS IS ALSO USED FOR APP GATEWAY?
+# https://docs.microsoft.com/en-us/azure/application-gateway/ingress-controller-install-existing#set-up-aad-pod-identity
 resource "azurerm_role_assignment" "pod-identity-assignment" {
   scope                = azurerm_resource_group.resourceGroup.id
   role_definition_name = "Reader"
@@ -53,24 +56,24 @@ data "azurerm_resource_group" "aks-node" {
 
 # AKS (SystemAssigned Identity) Pod Identity
 resource "azurerm_role_assignment" "aks-pod-identity-mio-access" {
-  scope                = data.azurerm_resource_group.aks-node.id
-  role_definition_name = "Managed Identity Operator"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  scope                            = data.azurerm_resource_group.aks-node.id
+  role_definition_name             = "Managed Identity Operator"
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }
 
 # AKS (SystemAssigned Identity) Pod Identity
 resource "azurerm_role_assignment" "aks-pod-identity-mio-access-main-rg" {
-  scope                = azurerm_resource_group.resourceGroup.id
-  role_definition_name = "Managed Identity Operator"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  scope                            = azurerm_resource_group.resourceGroup.id
+  role_definition_name             = "Managed Identity Operator"
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }
 
 # AKS (SystemAssigned Identity) Pod Identity
 resource "azurerm_role_assignment" "aks-pod-identity-vm-access" {
-  scope                = data.azurerm_resource_group.aks-node.id
-  role_definition_name = "Virtual Machine Contributor"
-  principal_id         = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
+  scope                            = data.azurerm_resource_group.aks-node.id
+  role_definition_name             = "Virtual Machine Contributor"
+  principal_id                     = azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id
   skip_service_principal_aad_check = true
 }

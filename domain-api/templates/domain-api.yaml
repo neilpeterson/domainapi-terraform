@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: domainapi
-        aadpodidbinding: keyvault
+        aadpodidbinding: {{ .Values.IdentitySelector }}
     spec:
       containers:
       - name: domainapi

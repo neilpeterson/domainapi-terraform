@@ -1,5 +1,5 @@
 variable "identifier" {
-  default = "ninenine555"
+  default = "ninenine002"
 }
 
 variable "resourceGroupName" {
