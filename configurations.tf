@@ -45,7 +45,7 @@ resource "azurerm_template_deployment" "domaindata" {
         "aksResourceGroup": {
             "type": "string"
         },
-        "agwName": {
+        "applicationGatewayName": {
             "type": "string"
         },
         "identityResourceID": {
@@ -56,7 +56,7 @@ resource "azurerm_template_deployment" "domaindata" {
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/7191c9c53986abd09f4bca58863f39d9/raw/c71e5d39bd835bddf4404097e2e090c707f42cf7/pro-template-app-gateway.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/7191c9c53986abd09f4bca58863f39d9/raw/8de57e297a342820b3421705e8b3dcd262b76c4b/pro-template-app-gateway.ps1"
     },
     "resources": [
         {
@@ -72,7 +72,7 @@ resource "azurerm_template_deployment" "domaindata" {
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'), ' -subscriptionId ', subscription().subscriptionId, ' -agwName ', parameters('agwName'), ' -identityResourceID ', parameters('identityResourceID'), ' -identityClientID ', parameters('identityClientID'))]",
+                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'), ' -subscriptionId ', subscription().subscriptionId, ' -applicationGatewayName ', parameters('applicationGatewayName'), ' -identityResourceID ', parameters('identityResourceID'), ' -identityClientID ', parameters('identityClientID'))]",
                 "primaryScriptUri": "[variables('script')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
@@ -84,16 +84,18 @@ resource "azurerm_template_deployment" "domaindata" {
 DEPLOY
 
   parameters = {
-    "identity"         = azurerm_user_assigned_identity.script-identity.id,
-    "sqlServer"        = azurerm_sql_server.sql.fully_qualified_domain_name,
-    "sqlAdmin"         = var.sqlServerAdminName,
-    "sqlPassword"      = var.sqlServerAdminPassword,
-    "aksResourceGroup" = azurerm_resource_group.resourceGroup.name,
-    "aksCluster"       = azurerm_kubernetes_cluster.aks.name,
-    "agwName"          = azurerm_application_gateway.agw.name,
-    "identityResourceID" = azurerm_user_assigned_identity.pod-identity.id,
-    "identityClientID" = azurerm_user_assigned_identity.pod-identity.client_id
+    "identity"               = azurerm_user_assigned_identity.script-identity.id,
+    "sqlServer"              = azurerm_sql_server.sql.fully_qualified_domain_name,
+    "sqlAdmin"               = var.sqlServerAdminName,
+    "sqlPassword"            = var.sqlServerAdminPassword,
+    "aksResourceGroup"       = azurerm_resource_group.resourceGroup.name,
+    "aksCluster"             = azurerm_kubernetes_cluster.aks.name,
+    "applicationGatewayName" = azurerm_application_gateway.agw.name,
+    "identityResourceID"     = azurerm_user_assigned_identity.pod-identity.id,
+    "identityClientID"       = azurerm_user_assigned_identity.pod-identity.client_id
   }
 
   deployment_mode = "Incremental"
+
+  depends_on = [azurerm_application_gateway.agw]
 }

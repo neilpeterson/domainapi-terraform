@@ -1,13 +1,14 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: guestbook
+  name: domaindata
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
 spec:
   rules:
   - http:
       paths:
-      - backend:
-          serviceName: frontend
+      - path: /DomainData/GetAll/*
+        backend:
+          serviceName: domainapi
           servicePort: 80

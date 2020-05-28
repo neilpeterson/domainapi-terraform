@@ -5,7 +5,7 @@ param(
   [string] [Parameter(Mandatory=$true)] $aksCluster,
   [string] [Parameter(Mandatory=$true)] $aksResourceGroup,
   [string] [Parameter(Mandatory=$true)] $subscriptionId,
-  [string] [Parameter(Mandatory=$true)] $agwName,
+  [string] [Parameter(Mandatory=$true)] $applicationGatewayName,
   [string] [Parameter(Mandatory=$true)] $identityResourceID,
   [string] [Parameter(Mandatory=$true)] $identityClientID
 )
@@ -41,17 +41,5 @@ bash -c "./get_helm.sh"
 # Configure APP Gateway Ingress Controller
 bash -c "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/"
 bash -c "helm repo update"
-bash -c "curl https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml > helm-config.yaml"
-$a = get-content -path helm-config.yaml
-$a = $a -replace '<subscriptionId>', $subscriptionId
-$a = $a -replace '<agwName>', $agwName
-$a = $a -replace '<identityResourceID>', $identityResourceID
-$a = $a -replace '<identityClientID>', $identityClientID
-$a = $a -replace 'enabled: false', 'enabled: true'
-New-Item helm-config-updated.yaml
-Set-Content helm-config-update.yaml $a
-
-bash -c "helm install ingress-azure -f helm-config-updated.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.0.0"
-
-# Need to work through this, can I add the pod identity identityResourceId and identityClientId as Helm Values
-# https://azure.github.io/application-gateway-kubernetes-ingress/examples/sample-helm-config.yaml
+# bash -c "curl https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml > helm-config.yaml"
+bash -c "helm install ingress-azure application-gateway-kubernetes-ingress/ingress-azure --set appgw.name=$applicationGatewayName --set appgw.resourceGroup=$aksResourceGroup --set appgw.subscriptionId=$subscriptionId --set armAuth.identityResourceID=$identityResourceID --set armAuth.identityClientID=$identityClientID --set armAuth.type=aadPodIdentity --set appgw.usePrivateIP=false --set rbac.enabled=true --version 1.2.0-rc2"
