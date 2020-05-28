@@ -41,5 +41,4 @@ bash -c "./get_helm.sh"
 # Configure APP Gateway Ingress Controller
 bash -c "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/"
 bash -c "helm repo update"
-# bash -c "curl https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml > helm-config.yaml"
-bash -c "helm install ingress-azure application-gateway-kubernetes-ingress/ingress-azure --set appgw.name=$applicationGatewayName --set appgw.resourceGroup=$aksResourceGroup --set appgw.subscriptionId=$subscriptionId --set armAuth.identityResourceID=$identityResourceID --set armAuth.identityClientID=$identityClientID --set armAuth.type=aadPodIdentity --set appgw.usePrivateIP=false --set rbac.enabled=true --version 1.2.0-rc2"
+bash -c "helm install ingress-azure application-gateway-kubernetes-ingress/ingress-azure --set appgw.name=$applicationGatewayName --set appgw.resourceGroup=$aksResourceGroup --set appgw.subscriptionId=$subscriptionId --set armAuth.identityResourceID=$identityResourceID --set armAuth.identityClientID=$identityClientID --set armAuth.type=aadPodIdentity --set appgw.usePrivateIP=false --set rbac.enabled=true --set verbosityLevel=5 --version 1.2.0-rc2"
