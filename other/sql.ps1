@@ -26,3 +26,17 @@ bash -c "az aks install-cli"
 bash -c "az aks get-credentials --name $aksCluster --resource-group $aksResourceGroup"
 bash -c "kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml"
 bash -c "kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/mic-exception.yaml"
+
+# Configure POD Identity
+bash -c "kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml"
+bash -c "kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/mic-exception.yaml"
+
+# Install Helm
+bash -c "curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3"
+bash -c "chmod 700 get_helm.sh"
+bash -c "./get_helm.sh"
+
+# Install NGINX Ingress Controller
+bash -c "kubectl create namespace ingress-basic"
+bash -c "helm repo add stable https://kubernetes-charts.storage.googleapis.com/"
+bash -c "helm install nginx stable/nginx-ingress"

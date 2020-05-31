@@ -47,7 +47,7 @@ resource "azurerm_template_deployment" "domaindata" {
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/d6e4d7104ed8a016470aaed01c558652/raw/1e8ca5e5c652f14ad63e3e2001cef33be60b24dd/gistfile1.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/0782c57fe5fa833e0380b2ca362b4e37/raw/eda2fc9591ba0cd47d711684e3cdcd511de860c4/pro-template-nginx-ingress.ps1"
     },
     "resources": [
         {
