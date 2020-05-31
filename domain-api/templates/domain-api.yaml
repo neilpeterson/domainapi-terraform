@@ -11,7 +11,7 @@ spec:
     metadata:
       labels:
         app: domainapi
-        aadpodidbinding: keyvault
+        aadpodidbinding: {{ .Values.IdentitySelector }}
     spec:
       containers:
       - name: domainapi
@@ -66,3 +66,19 @@ metadata:
 spec:
   azureIdentity: aks-pod-identity
   selector: {{ .Values.IdentitySelector }}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress-static
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: domainapi
+          servicePort: 80
+        path: /
