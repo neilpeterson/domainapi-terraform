@@ -1,3 +1,20 @@
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: aks-pod-identity
+spec:
+  type: 0
+  resourceID: /subscriptions/{{ .Values.SubscriptionId }}/resourcegroups/{{ .Values.ResourceGroupName }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{ .Values.IdentityName }}
+  clientID: {{ .Values.IdentityClientId }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: aks-pod-identity-binding
+spec:
+  azureIdentity: aks-pod-identity
+  selector: {{ .Values.IdentitySelector }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,8 +33,6 @@ spec:
       containers:
       - name: domainapi
         image: {{ .Values.Image }}
-        env:
-        - name: 
         resources:
           requests:
             cpu: 100m
@@ -35,6 +50,12 @@ spec:
           value: "http://+:80"
         - name: KeyVaultName
           value:  {{ .Values.KeyVaultName }}
+        readinessProbe:
+          httpGet:
+            path: /swagger
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 30
 ---
 apiVersion: v1
 kind: Service
@@ -49,23 +70,6 @@ spec:
   - port: 80
   selector:
     app: domainapi
----
-apiVersion: "aadpodidentity.k8s.io/v1"
-kind: AzureIdentity
-metadata:
-  name: aks-pod-identity
-spec:
-  type: 0
-  resourceID: /subscriptions/{{ .Values.SubscriptionId }}/resourcegroups/{{ .Values.ResourceGroupName }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{{ .Values.IdentityName }}
-  clientID: {{ .Values.IdentityClientId }}
----
-apiVersion: "aadpodidentity.k8s.io/v1"
-kind: AzureIdentityBinding
-metadata:
-  name: aks-pod-identity-binding
-spec:
-  azureIdentity: aks-pod-identity
-  selector: {{ .Values.IdentitySelector }}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -82,3 +86,14 @@ spec:
           serviceName: domainapi
           servicePort: 80
         path: /
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: domainapi
+# spec:
+#   type: LoadBalancer
+#   ports:
+#   - port: 80
+#   selector:
+#     app: domainapi
