@@ -1,5 +1,5 @@
 variable "identifier" {
-  default = "mon002"
+  default = "tue006"
 }
 
 variable "resourceGroupName" {

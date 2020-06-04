@@ -3,7 +3,8 @@ param(
   [string] [Parameter(Mandatory=$true)] $sqlAdmin,
   [string] [Parameter(Mandatory=$true)] $sqlPassword,
   [string] [Parameter(Mandatory=$true)] $aksCluster,
-  [string] [Parameter(Mandatory=$true)] $aksResourceGroup
+  [string] [Parameter(Mandatory=$true)] $aksResourceGroup,
+  [string] [Parameter(Mandatory=$true)] $aksNodeResourceGroup
 )
 
 # Install SQL Tools
@@ -40,3 +41,13 @@ bash -c "./get_helm.sh"
 bash -c "kubectl create namespace ingress-basic"
 bash -c "helm repo add stable https://kubernetes-charts.storage.googleapis.com/"
 bash -c "helm install nginx stable/nginx-ingress"
+
+# Get Ingress IP Address
+DO {
+  $ip = az network public-ip list --resource-group $aksNodeResourceGroup --query [].ipAddress -o tsv
+} Until ($ip)
+
+$PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$ip')].[id]" --output tsv)
+
+# Add DNS Record
+bash -c "az network public-ip update --ids $PUBLICIPID --dns-name $aksCluster"

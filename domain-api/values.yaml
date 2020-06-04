@@ -6,3 +6,5 @@ IdentityName:
 IdentitySelector: keyvault
 IdentityClientId:
 KeyVaultName:
+emailAddress: janedoe@contoso.com
+fqdn:

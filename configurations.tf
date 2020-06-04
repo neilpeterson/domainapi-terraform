@@ -16,8 +16,7 @@ resource "azurerm_key_vault_secret" "sqlServerAdminPassword" {
   key_vault_id = azurerm_key_vault.keyvault.id
 }
 
-# No Terraform support for deploymnet script, using ARM template
-# Deployment script is used to create the domaindata table in the Azure SQL DB and boot strap AKS pod identity
+# Deployment script is used to create the domaindata table in the Azure SQL DB and boot strap AKS
 resource "azurerm_template_deployment" "domaindata" {
   name                = "domaindata"
   resource_group_name = azurerm_resource_group.resourceGroup.name
@@ -44,10 +43,13 @@ resource "azurerm_template_deployment" "domaindata" {
         },
         "aksResourceGroup": {
             "type": "string"
+        },
+        "aksNodeResourceGroup": {
+            "type": "string"
         }
     },
     "variables": {
-        "script": "https://gist.githubusercontent.com/neilpeterson/0782c57fe5fa833e0380b2ca362b4e37/raw/eda2fc9591ba0cd47d711684e3cdcd511de860c4/pro-template-nginx-ingress.ps1"
+        "script": "https://gist.githubusercontent.com/neilpeterson/0782c57fe5fa833e0380b2ca362b4e37/raw/9f4a342025ee97e355043a7614450f8e12ae330a/pro-template-nginx-ingress.ps1"
     },
     "resources": [
         {
@@ -63,7 +65,7 @@ resource "azurerm_template_deployment" "domaindata" {
             "properties": {
                 "forceUpdateTag": "1",
                 "azPowerShellVersion": "3.0",
-                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'))]",
+                "arguments": "[concat('-sqlServer ', parameters('sqlServer'), ' -sqlAdmin ', parameters('sqlAdmin'), ' -sqlPassword ', parameters('sqlPassword'), ' -aksCluster ', parameters('aksCluster'), ' -aksResourceGroup ', parameters('aksResourceGroup'), ' -aksNodeResourceGroup ', parameters('aksNodeResourceGroup'))]",
                 "primaryScriptUri": "[variables('script')]",
                 "timeout": "PT30M",
                 "cleanupPreference": "OnSuccess",
@@ -75,12 +77,13 @@ resource "azurerm_template_deployment" "domaindata" {
 DEPLOY
 
   parameters = {
-    "identity"         = azurerm_user_assigned_identity.script-identity.id,
-    "sqlServer"        = azurerm_sql_server.sql.fully_qualified_domain_name,
-    "sqlAdmin"         = var.sqlServerAdminName,
-    "sqlPassword"      = var.sqlServerAdminPassword,
-    "aksResourceGroup" = azurerm_resource_group.resourceGroup.name,
-    "aksCluster"       = azurerm_kubernetes_cluster.aks.name
+    "identity"             = azurerm_user_assigned_identity.script-identity.id,
+    "sqlServer"            = azurerm_sql_server.sql.fully_qualified_domain_name,
+    "sqlAdmin"             = var.sqlServerAdminName,
+    "sqlPassword"          = var.sqlServerAdminPassword,
+    "aksResourceGroup"     = azurerm_resource_group.resourceGroup.name,
+    "aksNodeResourceGroup" = data.azurerm_resource_group.aks-node.name
+    "aksCluster"           = azurerm_kubernetes_cluster.aks.name
   }
 
   deployment_mode = "Incremental"
